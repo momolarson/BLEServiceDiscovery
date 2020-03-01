@@ -136,7 +136,7 @@ export const writeCharacteristic = (text) => {
     }
     let packet = buffer.slice(offset,packetlength);
     console.log("packet: ", packet)
-    let base64packet = btoa(String.fromCharCode.apply(null, packet));
+    let base64packet = Base64.btoa(String.fromCharCode.apply(null, packet));
     state.BLEs.connectedDevice.writeCharacteristicWithoutResponseForService(state.BLEs.selectedService.uuid,state.BLEs.selectedCharacteristic.uuid, base64packet)
     offset += packetsize;
   } while(offset < buffer.length)
