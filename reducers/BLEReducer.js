@@ -1,3 +1,5 @@
+import update from 'immutability-helper';
+
 const INITIAL_STATE = {
   BLEList: [],
   connectedDevice: {},
@@ -14,82 +16,23 @@ const BLEReducer = (state =INITIAL_STATE, action) => {
       if(state.BLEList.some(device => device.id === action.device.id) || !action.device.isConnectable || action.device.name === null){
         return state;
       } else {
-        const newBLE = [
-              ...state.BLEList,
-              action.device
-            ]
-         return {
-           BLEList: newBLE,
-           connectedDevice: state.connectedDevice,
-           connectedDeviceServices: state.connectedDeviceServices,
-           connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-           selectedService: state.selectedService,
-           selectedCharacteristic: state.selectedCharacteristic,
-           status: state.status
-          };
+        return update(state,{BLEList: {$set: [
+          ...state.BLEList,
+          action.device
+        ]} });
       }
     case 'CONNECTED_DEVICE':
-      return {
-        BLEList: state.BLEList,
-        connectedDevice: action.connectedDevice,
-        connectedDeviceServices: state.connectedDeviceServices,
-        connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-        selectedService: state.selectedService,
-        selectedCharacteristic: state.selectedCharacteristic,
-        status: state.status
-       };
-    case 'CONNECTED_CHARACTERISTICS':
-      console.log("connected characteristics:",action)
-      return {
-        BLEList: state.BLEList,
-        connectedDevice: state.connectedDevice,
-        connectedDeviceServices: state.connectedDeviceServices,
-        connectedServiceCharacteristics: action.connectedServiceCharacteristics,
-        selectedService: state.selectedService,
-        selectedCharacteristic: state.selectedCharacteristic,
-        status: state.status
-       };
+      return update(state,{connectedDevice: {$set: action.connectedDevice} });
     case 'CONNECTED_SERVICES':
-       console.log("connected_services", action)
-        return {
-          BLEList: state.BLEList,
-          connectedDevice: state.connectedDevice,
-          connectedDeviceServices: action.connectedDeviceServices,
-          connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-          selectedService: state.selectedService,
-          selectedCharacteristic: state.selectedCharacteristic,
-          status: state.status
-         };
-    case 'CHANGE_STATUS':
-      return {
-          BLEList: state.BLEList,
-          connectedDevice: state.connectedDevice,
-          connectedDeviceServices: state.connectedDeviceServices,
-          connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-          selectedService: state.selectedService,
-          selectedCharacteristic: state.selectedCharacteristic,
-          status: action.status
-         };
+      return update(state,{connectedDeviceServices: {$set: action.connectedDeviceServices} });
     case 'SELECTED_SERVICE':
-      return {
-        BLEList: state.BLEList,
-        connectedDevice: state.connectedDevice,
-        connectedDeviceServices: state.connectedDeviceServices,
-        connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-        selectedService: action.selectedService,
-        selectedCharacteristic: state.selectedCharacteristic,
-        status: state.status
-       };
-       case 'SELECTED_CHARACTERISTIC':
-        return {
-          BLEList: state.BLEList,
-          connectedDevice: state.connectedDevice,
-          connectedDeviceServices: state.connectedDeviceServices,
-          connectedServiceCharacteristics: state.connectedServiceCharacteristics,
-          selectedService: state.selectedService,
-          selectedCharacteristic: action.selectedCharacteristic,
-          status: state.status
-         };
+      return update(state,{selectedService: {$set: action.selectedService} });
+    case 'SELECTED_CHARACTERISTIC':
+      return update(state,{selectedCharacteristic: {$set: action.selectedCharacteristic} });
+    case 'CONNECTED_CHARACTERISTICS':
+      return update(state,{connectedServiceCharacteristics: {$set: action.connectedServiceCharacteristics} });
+    case 'CHANGE_STATUS':
+      return update(state,{status: {$set: action.status} });
     default:
       return state;
   }
