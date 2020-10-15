@@ -179,6 +179,9 @@ android {
 }
 
 dependencies {
+    //https://stackoverflow.com/questions/56901873/swiperefreshlayout-error-on-a-react-native-app-after-androidx-migration
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha03'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
