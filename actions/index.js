@@ -1,4 +1,5 @@
-import Base64 from '../Base64'
+import Base64 from '../Base64';
+import {PermissionsAndroid, Platform} from 'react-native';
 
 export const addBLE = device => ({
   type: 'ADD_BLE',
@@ -49,39 +50,72 @@ export const startScan = () => {
       }
     }, true);
   };
-}
+};
+
+//on android device, we should ask permission
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      {
+        title: 'Location permission for bluetooth scanning',
+        message: 'wahtever',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Location permission for bluetooth scanning granted');
+      return true;
+    } else {
+      console.log('Location permission for bluetooth scanning revoked');
+      return false;
+    }
+  } catch (err) {
+    console.warn(err);
+    return false;
+  }
+};
 
 export const scan = () => {
-  return (dispatch, getState, DeviceManager) => {
-    DeviceManager.startDeviceScan(null, null, (error, device) => {
-      dispatch(changeStatus("Scanning"));
-      console.log(device);
-      if (error) {
-        console.log(error);
-      }
-      if (device !== null) {
-        dispatch(addBLE(device));
-      }
-    });
-  }
-}
+  return async (dispatch, getState, DeviceManager) => {
+    const permission = Platform.OS === 'ios'? true: await requestLocationPermission();
+    if (permission) {
+      DeviceManager.startDeviceScan(null, null, (error, device) => {
+        dispatch(changeStatus('Scanning'));
+        if (error) {
+          console.log(error);
+        }
+        if (device !== null) {
+          dispatch(addBLE(device));
+        }
+      });
+    } else {
+      //TODO: here we could treat any new state or new thing when there's no permission to BLE
+      console.log('Error permission');
+    }
+  };
+};
 
-export const getServiceCharacteristics = (service) => {
+export const getServiceCharacteristics = service => {
   return (dispatch, getState, DeviceManager) => {
     let state = getState();
-    DeviceManager.characteristicsForDevice(state.BLEs.connectedDevice.id, service.uuid)
-      .then((characteristics) => {
-        dispatch(connectedServiceCharacteristics(characteristics));
-      });
-
-  }
-}
+    DeviceManager.characteristicsForDevice(
+      state.BLEs.connectedDevice.id,
+      service.uuid,
+    ).then(characteristics => {
+      dispatch(connectedServiceCharacteristics(characteristics));
+    });
+  };
+};
 
 export const connectDevice = (device) => {
   return (dispatch, getState, DeviceManager) => {
     dispatch(changeStatus("Connecting"));
     DeviceManager.stopDeviceScan()
-    device.connect()
+    device
+      .connect()
       .then((device) => {
         dispatch(changeStatus("Discovering"));
         let allCharacteristics = device.discoverAllServicesAndCharacteristics()
@@ -93,11 +127,11 @@ export const connectDevice = (device) => {
         return services;
       })
       .then((services) => {
-        console.log("found services: ", services)
-        dispatch(connectedDeviceServices(services));
-      }, (error) => {
-        console.log(this._logError("SCAN", error));
-      })
+          console.log("found services: ", services)
+          dispatch(connectedDeviceServices(services));
+        }, (error) => {
+          console.log(this._logError("SCAN", error));
+        })
 
   }
 }
