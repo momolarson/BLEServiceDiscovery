@@ -8,9 +8,10 @@
 
 import 'react-native-gesture-handler';
 import React from 'react';
+import {PermissionsAndroid, Platform} from 'react-native';
 
-import { Provider } from 'react-redux';
-import { createStore,applyMiddleware } from 'redux';
+import {Provider} from 'react-redux';
+import {createStore, applyMiddleware} from 'redux';
 import rootReducer from './reducers/index';
 import thunk from 'redux-thunk';
 
@@ -20,7 +21,7 @@ import BLEList from './BLElist';
 import BLEservices from './BLEservices'
 import BLEservicecharacteristics from './BLEservicecharacteristics'
 import BLECharacteristic from './BLEcharacteristics'
-import { composeWithDevTools } from 'redux-devtools-extension';
+import {composeWithDevTools} from 'redux-devtools-extension';
 
 import {
   SafeAreaView,
@@ -37,8 +38,8 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 
 const DeviceManager = new BleManager();
 
@@ -48,20 +49,43 @@ const composeEnhancers = composeWithDevTools({
   // Specify here name, actionsBlacklist, actionsCreators and other options
 });
 
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk.withExtraArgument(DeviceManager))));
+const store = createStore(
+  rootReducer,
+  composeEnhancers(applyMiddleware(thunk.withExtraArgument(DeviceManager))),
+);
 
 const App: () => React$Node = () => {
 
 
+  if (Platform.OS === 'android') {
+    // Calling the permission function
+    const granted = PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      {
+        title: 'Bluetooth Permissions',
+        message: 'We need access to bluetooth permissions',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      // Permission Granted
+      console.log('granted');
+    }
+  }
   return (
     <>
-      <Provider store={ store }>
+      <Provider store={store}>
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="BLEDevices" component={BLEList} />
             <Stack.Screen name="BLEServices" component={BLEservices} />
-            <Stack.Screen name="BLECharacteristics" component={BLEservicecharacteristics} />
-            <Stack.Screen name="BLECharacteristic" component={BLECharacteristic} />
+            <Stack.Screen
+              name="BLECharacteristics"
+              component={BLEservicecharacteristics}
+            />
+            <Stack.Screen
+              name="BLECharacteristic"
+              component={BLECharacteristic}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>

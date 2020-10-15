@@ -1,10 +1,10 @@
 import Base64 from '../Base64';
 import {PermissionsAndroid, Platform} from 'react-native';
 
-export const addBLE = (device) => ({
-  type: "ADD_BLE",
-  device
-})
+export const addBLE = device => ({
+  type: 'ADD_BLE',
+  device,
+});
 
 export const connectedDevice = (device) => ({
   type: "CONNECTED_DEVICE",
@@ -41,8 +41,10 @@ export const changeStatus = (status) => ({
 export const startScan = () => {
   return (dispatch, getState, DeviceManager) => {
     // you can use Device Manager here
+    console.log("start Scanning");
     const subscription = DeviceManager.onStateChange((state) => {
       if (state === 'PoweredOn') {
+        console.log("powered on");
         dispatch(scan());
         subscription.remove();
       }

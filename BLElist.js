@@ -24,29 +24,35 @@ class BLEList extends Component {
     this.props.startScan();
   }
 
-  
-  
-  handleClick = (device) => {
+  handleClick = device => {
     this.props.connectDevice(device);
     this.props.navigation.navigate('BLEServices');
   }
 
-  render() {     
+  connectableString = item => {
+    if (item.isConnectable) {
+      return 'Tap to connect to: ' + item.name;
+    } else {
+      return item.name + ' is not connectable';
+    }
+  }
+
+  render() {
     return (
       <Container>
         <Header />
         <FlatList
-                data={this.props.BLEList}
+          data={this.props.BLEList}
                 renderItem={({ item }) => 
                 <>
                 <TouchableHighlight
                     onPress={() => this.handleClick(item)}
-                    style={styles.rowFront}
+                    style={item.isConnectable ? styles.rowFront : styles.rowBack}
                     underlayColor={'#AAA'}
                 >
                     <View>
                         <Text>
-                            Tap to connect to: {item.name}
+                            {this.connectableString(item)}
                         </Text>
                     </View>
                 </TouchableHighlight>
@@ -111,12 +117,12 @@ const styles = StyleSheet.create({
       height: 50,
   },
   rowBack: {
-      alignItems: 'center',
-      backgroundColor: '#DDD',
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingLeft: 15,
+    alignItems: 'center',
+    backgroundColor: '#F00',
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    justifyContent: 'center',
+    height: 50,
   },
   backRightBtn: {
       alignItems: 'center',
